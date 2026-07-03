@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Response
 
 from src.services.auth_service import AuthServiceORM
 from src.app.schemas.auth import UserLogin, TokenInfo
-from src.db.enums import Role
+from infrastructure.db.enums import Role
 from src.services.auth_service import OptionalCredentials, RefreshCookie, RequiredUser
 
 router_auth = APIRouter(tags=["Auth"])

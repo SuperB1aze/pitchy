@@ -2,8 +2,8 @@ from decimal import Decimal
 
 from pydantic import EmailStr
 
-from src.db.base_model import Base, int_primary_key, created_at, updated_at
-from src.db.enums import Currency, FormType, DocVerificationStatus, Role
+from infrastructure.db.base_model import Base, int_primary_key, created_at, updated_at
+from infrastructure.db.enums import Currency, FormType, DocVerificationStatus, Role
 
 from sqlalchemy import String, ForeignKey, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship

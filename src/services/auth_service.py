@@ -1,4 +1,4 @@
-from typing import Any, Annotated, TypeAlias
+from typing import Annotated, TypeAlias
 from datetime import timedelta
 
 from fastapi import Form, Depends, HTTPException, Response, Cookie
@@ -10,7 +10,7 @@ from src.auth_utils import AuthUtils
 from src.app.schemas.auth import UserLogin
 from src.config import settings
 from src.services.user_service import UserServiceORM
-from src.db.models import UsersOrm
+from infrastructure.db.models import UsersOrm
 
 optional_bearer = HTTPBearer(auto_error=False)
 

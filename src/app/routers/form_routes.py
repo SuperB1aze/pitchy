@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Response, Form
+from fastapi import APIRouter, Response, Form, File, UploadFile
+from pydantic.json_schema import SkipJsonSchema
 
 from src.app.schemas.form import FormInfoDTO, InvestorFormInfoDTO, StartupFormInfoDTO
-from src.db.enums import FormType, Currency
+from infrastructure.db.enums import FormType, Currency
 
 from src.services.form_service import FormServiceORM
+from src.services.media_service import MediaServiceORM
 
 router_form = APIRouter(prefix="/forms", tags=["Forms"])
 
@@ -110,4 +112,19 @@ async def edit_startup_form(
 @router_form.delete("/{form_id}/delete", summary="удалить анкету")
 async def delete_form(form_id: int, user_id: int = Form(...)):
     await FormServiceORM.delete_form(user_id, form_id)
+    return Response(status_code=204)
+
+@router_form.post("/{form_id}/media", summary="добавить фото/видео к анкете")
+async def upload_form_media(
+    form_id: int,
+    user_id: int = Form(...),
+    media_files: list[UploadFile | SkipJsonSchema[str]] = File(...),
+):
+    files = MediaServiceORM.normalize_media_files(media_files)
+    await MediaServiceORM.attach_media(user_id, form_id, files)
+    return Response(status_code=204)
+
+@router_form.delete("/{form_id}/media", summary="удалить все фото/видео анкеты")
+async def delete_form_media(form_id: int, user_id: int = Form(...)):
+    await MediaServiceORM.clear_form_media(user_id, form_id)
     return Response(status_code=204)

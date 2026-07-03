@@ -3,8 +3,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
 from src.database import async_session_factory
-from src.db.models import FormsOrm, UsersOrm, InvestorFormsOrm, StartupFormsOrm
-from src.db.enums import Role
+from infrastructure.db.models import FormsOrm, UsersOrm, InvestorFormsOrm, StartupFormsOrm
+from infrastructure.db.enums import Role
 from src.app.schemas.form import FormInfoDTO, InvestorFormInfoDTO, StartupFormInfoDTO
 from src.services.base_service import BaseServiceORM
 

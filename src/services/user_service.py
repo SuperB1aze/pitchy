@@ -3,8 +3,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from src.database import async_session_factory
-from src.db.models import UsersOrm
-from src.db.enums import Role
+from infrastructure.db.models import UsersOrm
+from infrastructure.db.enums import Role
 from src.app.schemas.user import UserInfoDTO, UserCreateDTO
 from src.services.base_service import BaseServiceORM
 from src.auth_utils import AuthUtils

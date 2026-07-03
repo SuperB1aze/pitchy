@@ -1,7 +1,7 @@
 from datetime import date
 
 from pydantic import BaseModel, Field, EmailStr, SecretStr
-from src.db.enums import Role
+from infrastructure.db.enums import Role
 from src.app.schemas.auth import TokenInfo
 
 class UserIDDTO(BaseModel):

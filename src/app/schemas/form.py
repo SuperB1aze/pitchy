@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from pydantic import BaseModel, Field
-from src.db.enums import FormType, Currency
+from infrastructure.db.enums import FormType, Currency
 
 class FormInfoDTO(BaseModel):
     title: str = Field(max_length=50, description="Максимально 50 символов.")

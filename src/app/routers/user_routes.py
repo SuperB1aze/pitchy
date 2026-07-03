@@ -4,8 +4,8 @@ from pydantic import EmailStr
 from src.app.schemas.user import UserCreateDTO, UserFullInfoDTO, UserInfoDTO, UserInfoRoleDTO, UserInfoWithTokenDTO
 from src.app.schemas.auth import TokenInfo
 from src.services.auth_service import OptionalCredentials, RequiredUser
-from src.db.models import UsersOrm
-from src.db.enums import Role
+from infrastructure.db.models import UsersOrm
+from infrastructure.db.enums import Role
 
 from src.services.user_service import UserServiceORM
 from src.services.auth_service import AuthServiceORM
