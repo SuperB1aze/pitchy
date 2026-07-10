@@ -16,4 +16,10 @@ class Currency(enum.Enum):
 class DocVerificationStatus(enum.Enum):
     PENDING = "pending"
     VERIFIED = "verified"
-    REJECTED = "rejected"
+    FLAGGED = "flagged"
+    FAILED = "failed"
+
+class VerificationType(enum.Enum):
+    EGRUL = "egrul"
+    FSSP = "fssp"
+    BANKRUPTCY = "bankruptcy"
