@@ -44,9 +44,17 @@ class MinIOSettings(BaseSettings):
     secret_key: str = str(os.getenv("S3_SECRET_KEY"))
     bucket_name: str = str(os.getenv("S3_BUCKET"))
 
+class DaDataSettings(BaseSettings):
+    api_key: str = str(os.getenv("DADATA_API_KEY"))
+
+class DaMiaSettings(BaseSettings):
+    api_key: str = str(os.getenv("DAMIA_API_KEY"))
+
 class Settings(BaseSettings):
     db: DBSettings = DBSettings()
     auth_jwt: AuthJWT = AuthJWT()
     minio: MinIOSettings = MinIOSettings()
+    dadata: DaDataSettings = DaDataSettings()
+    damia: DaMiaSettings = DaMiaSettings()
 
 settings = Settings()

@@ -15,7 +15,7 @@ class UsersOrm(Base):
     id: Mapped[int_primary_key]
     name: Mapped[str] = mapped_column(String(25), nullable=False)
     surname: Mapped[str] = mapped_column(String(25), nullable=False)
-    patronymic: Mapped[str] = mapped_column(String(25))
+    patronymic: Mapped[str | None] = mapped_column(String(25))
     email: Mapped[EmailStr] = mapped_column(String(255), unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[Role]
@@ -58,9 +58,9 @@ class FormsOrm(Base):
 
     user: Mapped["UsersOrm"] = relationship(back_populates="forms")
     company: Mapped["CompaniesOrm"] = relationship(back_populates="forms")
-    investor_form: Mapped["InvestorFormsOrm"] = relationship(back_populates="form")
-    startup_form: Mapped["StartupFormsOrm"] = relationship(back_populates="form")
-    medias: Mapped[list["MediasOrm"]] = relationship(back_populates="form")
+    investor_form: Mapped["InvestorFormsOrm"] = relationship(back_populates="form", cascade="all, delete-orphan")
+    startup_form: Mapped["StartupFormsOrm"] = relationship(back_populates="form", cascade="all, delete-orphan")
+    medias: Mapped[list["MediasOrm"]] = relationship(back_populates="form", cascade="all, delete-orphan")
 
     repl_cols = ("id", "user_id", "company_id", "form_type")
 

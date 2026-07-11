@@ -22,7 +22,7 @@ class UserCreateDTO(UserInfoDTO):
 class UserExtrasDTO(UserInfoRoleDTO):
     is_active: bool
 
-class UserFullInfoDTO(UserExtrasDTO, UserCreateDTO):
+class UserFullInfoDTO(UserIDDTO, UserExtrasDTO, UserCreateDTO):
     pass
 
 class UserInfoWithTokenDTO(BaseModel):

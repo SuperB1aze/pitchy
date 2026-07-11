@@ -29,12 +29,12 @@ async def show_profile(user_id: int):
 async def create_user(
     response: Response,
     credentials: OptionalCredentials,
-    name: str,
-    surname: str,
-    patronymic: str | None,
-    email: EmailStr,
-    password: str,
-    password_confirm: str,
+    name: str = Form(...),
+    surname: str = Form(...),
+    patronymic: str | None = Form(default=None),
+    email: EmailStr = Form(...),
+    password: str = Form(...),
+    password_confirm: str = Form(...),
 ):
     if password != password_confirm:
         raise HTTPException(status_code=422, detail="Passwords do not match")
@@ -52,7 +52,7 @@ async def create_user(
         refresh_token = AuthServiceORM.create_refresh_token(created_user)
         AuthServiceORM.set_refresh_cookie(response, refresh_token)
         return UserInfoWithTokenDTO(
-             **created_user,
+             user=user_info_dto(created_user),
              token_info = TokenInfo(
                   access_token=access_token,
                   token_type=AuthServiceORM.token_type
@@ -74,7 +74,7 @@ async def create_user(
 @router_user.post("/create_superuser", summary="создать суперпользователя", response_model=UserFullInfoDTO)
 async def create_superuser(
     current_user: RequiredUser,
-    superuser_role: Role,
+    superuser_role: Role = Form(...),
     name: str = Form(...),
     surname: str = Form(...),
     patronymic: str | None = Form(default=None),

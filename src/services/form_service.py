@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
 from src.database import async_session_factory
-from infrastructure.db.models import FormsOrm, UsersOrm, InvestorFormsOrm, StartupFormsOrm
+from infrastructure.db.models import FormsOrm, UsersOrm, CompaniesOrm, InvestorFormsOrm, StartupFormsOrm
 from infrastructure.db.enums import Role
 from src.app.schemas.form import FormInfoDTO, InvestorFormInfoDTO, StartupFormInfoDTO
 from src.services.base_service import BaseServiceORM
@@ -41,18 +41,24 @@ class FormServiceORM(BaseServiceORM):
             return await super().show_one(session, object_id)
     
     @staticmethod
-    def show_user_forms(user_id: int):
-        return (
-            select(FormsOrm)
-            .where(FormsOrm.user_id == user_id)
-            .options(joinedload(FormsOrm.user))
-        )
+    async def show_user_forms(user_id: int):
+        async with async_session_factory() as session:
+            result = await session.execute(
+                select(FormsOrm)
+                .where(FormsOrm.user_id == user_id)
+                .options(joinedload(FormsOrm.user))
+            )
+            return result.scalars().all()
     
     @staticmethod
-    async def new_form(user_id: int, data: FormInfoDTO):
+    async def new_form(user_id: int, company_id: int, data: FormInfoDTO):
         async with async_session_factory() as session:
+            company = await session.get(CompaniesOrm, company_id)
+            if not company:
+                raise HTTPException(status_code=404, detail="Company not found")
             form = FormsOrm(
                 user_id=user_id,
+                company_id=company_id,
                 title=data.title,
                 description=data.description,
                 form_type=data.form_type,
@@ -61,12 +67,17 @@ class FormServiceORM(BaseServiceORM):
             await session.commit()
             await session.refresh(form)
             return form
-        
+
     @staticmethod
-    async def new_investor_info(user_id: int, data: InvestorFormInfoDTO):
+    async def new_investor_info(user_id: int, form_id: int, data: InvestorFormInfoDTO):
         async with async_session_factory() as session:
+            form = await session.get(FormsOrm, form_id)
+            if not form:
+                raise HTTPException(status_code=404, detail="Form not found")
+            if form.user_id != user_id:
+                raise HTTPException(status_code=403, detail="You do not have permission to change this form")
             investor_form = InvestorFormsOrm(
-                id=user_id,
+                id=form_id,
                 currency=data.currency,
                 lowest_investment=data.lowest_investment,
                 highest_investment=data.highest_investment,
@@ -76,12 +87,17 @@ class FormServiceORM(BaseServiceORM):
             await session.commit()
             await session.refresh(investor_form)
             return investor_form
-        
+
     @staticmethod
-    async def new_startup_info(user_id: int, data: StartupFormInfoDTO):
+    async def new_startup_info(user_id: int, form_id: int, data: StartupFormInfoDTO):
         async with async_session_factory() as session:
+            form = await session.get(FormsOrm, form_id)
+            if not form:
+                raise HTTPException(status_code=404, detail="Form not found")
+            if form.user_id != user_id:
+                raise HTTPException(status_code=403, detail="You do not have permission to change this form")
             startup_form = StartupFormsOrm(
-                id=user_id,
+                id=form_id,
                 currency=data.currency,
                 required_investment=data.required_investment,
             )
@@ -144,7 +160,7 @@ class FormServiceORM(BaseServiceORM):
                 raise HTTPException(status_code=404, detail="Form not found")
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
-            if form.user_id != user_id or user.role != Role.ADMIN:
+            if form.user_id != user_id and user.role != Role.ADMIN:
                 raise HTTPException(status_code=403, detail="You do not have permission to delete this form")
             await session.delete(form)
             await session.commit()

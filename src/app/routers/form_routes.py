@@ -27,16 +27,18 @@ async def show_user_forms(user_id: int):
 @router_form.post("/create", summary="создать анкету", response_model=FormInfoDTO)
 async def create_form(
     user_id: int = Form(...),
+    company_id: int = Form(...),
     title: str = Form(...),
     description: str | None = Form(default=None),
     form_type: FormType = Form(...),
 ):
     form_info = FormInfoDTO(title=title, description=description, form_type=form_type)
-    new_form = await FormServiceORM.new_form(user_id, form_info)
+    new_form = await FormServiceORM.new_form(user_id, company_id, form_info)
     return new_form
 
 @router_form.post("/create/investor", summary="создать анкету инвестора", response_model=InvestorFormInfoDTO)
 async def create_investor_form(
+    form_id: int = Form(...),
     user_id: int = Form(...),
     currency: Currency = Form(...),
     lowest_investment: float = Form(...),
@@ -49,11 +51,12 @@ async def create_investor_form(
         highest_investment=highest_investment,
         royalty_percentage=royalty_percentage
     )
-    new_investor_form = await FormServiceORM.new_investor_info(user_id, investor_info)
+    new_investor_form = await FormServiceORM.new_investor_info(user_id, form_id, investor_info)
     return new_investor_form
 
 @router_form.post("/create/startup", summary="создать анкету стартапа", response_model=StartupFormInfoDTO)
 async def create_startup_form(
+    form_id: int = Form(...),
     user_id: int = Form(...),
     currency: Currency = Form(...),
     required_investment: float = Form(...),
@@ -62,7 +65,7 @@ async def create_startup_form(
         currency=currency,
         required_investment=required_investment
     )
-    new_startup_form = await FormServiceORM.new_startup_info(user_id, startup_info)
+    new_startup_form = await FormServiceORM.new_startup_info(user_id, form_id, startup_info)
     return new_startup_form
 
 @router_form.put("/{form_id}/edit", summary="изменить анкету", response_model=FormInfoDTO)
@@ -113,6 +116,7 @@ async def edit_startup_form(
 async def delete_form(form_id: int, user_id: int = Form(...)):
     await FormServiceORM.delete_form(user_id, form_id)
     return Response(status_code=204)
+
 
 @router_form.post("/{form_id}/media", summary="добавить фото/видео к анкете")
 async def upload_form_media(
