@@ -1,40 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Pitchy — Платформа для поиска инвестиций
 
-## Getting Started
+**Pitchy** — это современное веб-приложение для стартапов и инвесторов, построенное на стеке Next.js 16 и React 19. Платформа позволяет проектам находить финансирование, а инвесторам — перспективные идеи для вложений.
 
-First, run the development server:
+## 🚀 Технологический стек
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Фреймворк:** [Next.js 16 (App Router)](https://nextjs.org/)
+- **Язык:** [TypeScript](https://www.typescriptlang.org/)
+- **Стилизация:** [Tailwind CSS 4](https://tailwindcss.com/)
+- **Компоненты:** [Shadcn UI](https://ui.shadcn.com/) + [Radix UI](https://www.radix-ui.com/)
+- **Виртуализация:** [@tanstack/react-virtual](https://tanstack.com/virtual/v3) (для высокопроизводительных списков)
+- **Иконки:** [Lucide React](https://lucide.dev/)
+- **Валидация:** [Zod](https://zod.dev/) / [Yup](https://github.com/jquense/yup)
+
+## ✨ Основные возможности
+
+- **Виртуализированный список проектов:** Плавный скроллинг тысяч карточек проектов с использованием динамических измерений и оконной виртуализации.
+- **Умная фильтрация:** Поиск по категориям, диапазону инвестиций и сортировка в реальном времени.
+- **Личный кабинет:** Раздельные профили для фаундеров проектов и инвесторов.
+- **Адаптивный дизайн:** Полная поддержка мобильных устройств, планшетов и десктопов.
+- **Темная тема:** Поддержка системных настроек и ручного переключения.
+
+## 🛠 Архитектура проекта
+
+```text
+src/
+├── components/ui/    # Базовые UI-компоненты (Shadcn)
+├── layouts/          # Общие макеты страниц (Main, Auth)
+├── pages/            # Маршрутизация Next.js
+├── styles/           # Глобальные стили и конфигурация Tailwind
+└── templates/        # Сложные компоненты страниц и бизнес-логика
+    ├── ProjectsTemplate/ # Список проектов и фильтры
+    └── ProfileTemplate/  # Личный кабинет и формы
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📦 Установка и запуск
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+1. Клонируйте репозиторий:
+   ```bash
+   git clone <repository-url>
+   ```
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+2. Установите зависимости:
+   ```bash
+   npm install
+   ```
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+3. Запустите сервер для разработки:
+   ```bash
+   npm run dev
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Откройте [http://localhost:3000](http://localhost:3000) в браузере.
 
-## Learn More
+## 📜 Скрипты
 
-To learn more about Next.js, take a look at the following resources:
+- `npm run dev` — запуск в режиме разработки
+- `npm run build` — сборка проекта для продакшена
+- `npm run start` — запуск собранного приложения
+- `npm run lint` — проверка кода линтером
+- `npm run format` — форматирование кода с помощью Prettier
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+## 🤝 Разработка
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Проект использует современные стандарты разработки:
+- **Headless UI:** Использование Radix UI для доступности.
+- **Performance:** Оптимизация рендеринга через виртуализацию.
+- **Clean Code:** Разделение ответственности между шаблонами и UI-компонентами.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.

@@ -1,0 +1,69 @@
+import React from 'react';
+import { useAuth } from '../hooks/useAuth';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { User, Heart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+
+export default function MainLayout({ children }: { children: React.ReactNode }) {
+  useAuth(true);
+  const router = useRouter();
+
+  const navItems = [
+    { label: 'Ищу проект', href: '/' },
+    { label: 'Ищу инвестора', href: '/investors' },
+  ];
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center gap-2 font-bold text-xl text-primary">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground">
+                P
+              </div>
+              <span>Pitchy</span>
+            </Link>
+
+            <nav className="hidden md:flex items-center bg-muted/50 p-1 rounded-lg">
+              {navItems.map((item) => {
+                const isActive = router.pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "px-4 py-1.5 text-sm font-medium rounded-md transition-all",
+                      isActive 
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link href="/favorites">
+                <Button variant="ghost" size="icon" className="text-foreground hover:text-primary cursor-pointer">
+                    <Heart className="w-5 h-5" />
+                </Button>
+              </Link>
+            
+             <Link href="/profile">
+                <Button variant="ghost" size="icon" className="text-foreground hover:text-primary cursor-pointer">
+                    <User className="w-5 h-5" />
+                </Button>
+            </Link>
+          </div>
+        </div>
+      </header>
+      <main className="flex-grow container mx-auto p-4 md:p-6">{children}</main>
+    </div>
+  );
+}
