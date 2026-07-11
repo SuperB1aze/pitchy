@@ -1,14 +1,36 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { User, Heart } from 'lucide-react';
+import { User, Heart, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { apiClient } from '@/lib/api-client';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
-  useAuth(true);
+  const { isAuthenticated } = useAuth(true);
   const router = useRouter();
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    apiClient
+      .getUserCredentials()
+      .then((user) => setUserName(`${user.name} ${user.surname}`))
+      .catch(() => {
+        localStorage.removeItem('token');
+        router.replace('/login');
+      });
+  }, [isAuthenticated, router]);
+
+  const handleLogout = async () => {
+    try {
+      await apiClient.logout();
+    } finally {
+      localStorage.removeItem('token');
+      router.push('/login');
+    }
+  };
 
   const navItems = [
     { label: 'Ищу проект', href: '/' },
@@ -49,17 +71,31 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           <div className="flex items-center gap-2">
+            {userName && (
+              <span className="hidden sm:inline text-sm text-muted-foreground mr-2">
+                Привет, {userName}
+              </span>
+            )}
             <Link href="/favorites">
                 <Button variant="ghost" size="icon" className="text-foreground hover:text-primary cursor-pointer">
                     <Heart className="w-5 h-5" />
                 </Button>
               </Link>
-            
+
              <Link href="/profile">
                 <Button variant="ghost" size="icon" className="text-foreground hover:text-primary cursor-pointer">
                     <User className="w-5 h-5" />
                 </Button>
             </Link>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-foreground hover:text-primary cursor-pointer"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-5 h-5" />
+            </Button>
           </div>
         </div>
       </header>

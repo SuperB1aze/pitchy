@@ -1,15 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as z from 'zod';
+import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/button';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
+import { apiClient } from '@/lib/api-client';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Имя слишком короткое'),
+  surname: z.string().min(2, 'Фамилия слишком короткая'),
   email: z.string().email('Некорректный email'),
   password: z.string().min(6, 'Пароль должен быть не менее 6 символов'),
   confirmPassword: z.string(),
@@ -21,7 +24,9 @@ const registerSchema = z.object({
 type RegisterValues = z.infer<typeof registerSchema>;
 
 export default function RegisterTemplate() {
-  const initialValues: RegisterValues = { name: '', email: '', password: '', confirmPassword: '' };
+  const router = useRouter();
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const initialValues: RegisterValues = { name: '', surname: '', email: '', password: '', confirmPassword: '' };
 
   const validate = (values: RegisterValues) => {
     const result = registerSchema.safeParse(values);
@@ -44,18 +49,40 @@ export default function RegisterTemplate() {
         <Formik
           initialValues={initialValues}
           validate={validate}
-          onSubmit={(values) => {
-            console.log('Register values:', values);
-            alert('Регистрация успешна (см. консоль)');
+          onSubmit={async (values, { setSubmitting }) => {
+            setSubmitError(null);
+            try {
+              const response = await apiClient.createUser({
+                name: values.name,
+                surname: values.surname,
+                email: values.email,
+                password: values.password,
+                password_confirm: values.confirmPassword,
+              });
+              localStorage.setItem('token', response.token_info.access_token);
+              router.push('/');
+            } catch (error) {
+              setSubmitError(error instanceof Error ? error.message : 'Не удалось зарегистрироваться');
+            } finally {
+              setSubmitting(false);
+            }
           }}
         >
           {({ isSubmitting }) => (
             <Form>
               <CardContent className="space-y-4">
+                {submitError && (
+                  <div className="text-sm text-red-500">{submitError}</div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="name">Имя</Label>
                   <Field name="name" as={Input} placeholder="Иван" />
                   <ErrorMessage name="name" component="div" className="text-sm text-red-500" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="surname">Фамилия</Label>
+                  <Field name="surname" as={Input} placeholder="Иванов" />
+                  <ErrorMessage name="surname" component="div" className="text-sm text-red-500" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>

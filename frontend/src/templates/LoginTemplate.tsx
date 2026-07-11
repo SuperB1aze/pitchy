@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as z from 'zod';
+import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/button';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
+import { apiClient } from '@/lib/api-client';
 
 const loginSchema = z.object({
   email: z.string().email('Некорректный email'),
@@ -16,6 +18,8 @@ const loginSchema = z.object({
 type LoginValues = z.infer<typeof loginSchema>;
 
 export default function LoginTemplate() {
+  const router = useRouter();
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const initialValues: LoginValues = { email: '', password: '' };
 
   const validate = (values: LoginValues) => {
@@ -39,14 +43,25 @@ export default function LoginTemplate() {
         <Formik
           initialValues={initialValues}
           validate={validate}
-          onSubmit={(values) => {
-            console.log('Login values:', values);
-            alert('Вход выполнен (см. консоль)');
+          onSubmit={async (values, { setSubmitting }) => {
+            setSubmitError(null);
+            try {
+              const response = await apiClient.login(values);
+              localStorage.setItem('token', response.access_token);
+              router.push('/');
+            } catch (error) {
+              setSubmitError(error instanceof Error ? error.message : 'Не удалось войти');
+            } finally {
+              setSubmitting(false);
+            }
           }}
         >
           {({ isSubmitting }) => (
             <Form>
               <CardContent className="space-y-4">
+                {submitError && (
+                  <div className="text-sm text-red-500">{submitError}</div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Field name="email" as={Input} type="email" placeholder="name@example.com" />

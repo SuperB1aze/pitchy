@@ -11,6 +11,17 @@ import {
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+// Ключ 'token' — тот же, что читает useAuth.ts для гейта защищённых страниц.
+function getStoredToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('token');
+}
+
+function authHeader(): Record<string, string> {
+  const token = getStoredToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function handleResponse<T>(response: Response): Promise<T> {
   const contentType = response.headers.get('content-type');
   const isJson = contentType && contentType.includes('application/json');
@@ -35,6 +46,7 @@ async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T
     credentials: 'include', // Обязательно для работы с refresh_token в куках
     headers: {
       'Content-Type': 'application/json',
+      ...authHeader(),
       ...options.headers,
     },
   };
@@ -67,6 +79,7 @@ async function apiFormRequest<T, B extends object = object>(
     const response = await fetch(url, {
       method,
       credentials: 'include',
+      headers: authHeader(),
       body: formData,
     });
     return await handleResponse<T>(response);
