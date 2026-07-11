@@ -17,6 +17,17 @@ Backend-платформа для поиска стартапами инвест
 
 Автоматическая документация API доступна после запуска на `/api/v1/docs` (Swagger UI) и `/api/v1/redoc` (Redoc).
 
+## Структура репозитория
+
+Репозиторий состоит из двух частей:
+
+| Часть | Расположение | Технологии |
+|---|---|---|
+| Backend (описан в этом README) | корень репозитория, `src/` | FastAPI, SQLAlchemy 2.0, PostgreSQL, MinIO |
+| Frontend | [`frontend/`](frontend) | Next.js 16, React 19, TypeScript, Tailwind CSS 4 |
+
+Требования и команды для запуска фронтенда — в шаге 8 раздела «Локальный запуск» ниже; подробности о его стеке и архитектуре — в [`frontend/README.md`](frontend/README.md).
+
 ## Схема базы данных
 
 ![Схема базы данных Pitchy](db-schema.svg)
@@ -230,3 +241,18 @@ docker compose exec postgres psql -U pitchy_user -d pitchy \
 (имя пользователя/БД — из `DB_MIGRATION_USER`/`DB_NAME` в вашем `.env`)
 
 После этого залогиньтесь этим пользователем заново (`POST /login`) — в новом access-токене будет учтена обновлённая роль при следующих запросах, читающих профиль из БД.
+
+### 8. Фронтенд
+
+Требования:
+
+- Node.js 20+ (LTS)
+- pnpm (в `frontend/` зафиксирован `pnpm-lock.yaml`)
+
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
+
+Приложение поднимется на `http://localhost:3000`. Подробнее о стеке, архитектуре и остальных скриптах — в [`frontend/README.md`](frontend/README.md).
