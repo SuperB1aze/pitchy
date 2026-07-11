@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 
 import { Project } from '../mock-projects';
 
-interface ProjectCardProps extends Project {}
+type ProjectCardProps = Project;
 
 export const ProjectCard = ({
   title,

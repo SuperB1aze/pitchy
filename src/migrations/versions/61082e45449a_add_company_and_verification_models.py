@@ -25,6 +25,15 @@ def upgrade() -> None:
     # of values, and Postgres enum types are global, not per-table.
     op.drop_table('legal_docs')
     op.execute('DROP TYPE docverificationstatus')
+    # Recreate the type explicitly via raw SQL (rather than relying on the
+    # inline sa.Enum(...) below to auto-create it): Alembic memoizes created
+    # type names for the duration of the upgrade run, so after already
+    # creating 'docverificationstatus' once (in the previous migration) it
+    # would silently skip re-creating it here, leaving it missing.
+    op.execute(
+        "CREATE TYPE docverificationstatus AS ENUM "
+        "('PENDING', 'VERIFIED', 'FLAGGED', 'FAILED')"
+    )
 
     op.create_table('companies',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
@@ -44,7 +53,7 @@ def upgrade() -> None:
     sa.Column('type', sa.Enum('EGRUL', 'FSSP', 'BANKRUPTCY', name='verificationtype'), nullable=False),
     sa.Column('provider', sa.String(length=50), nullable=True),
     sa.Column('external_ref', sa.String(length=255), nullable=True),
-    sa.Column('status', sa.Enum('PENDING', 'VERIFIED', 'FLAGGED', 'FAILED', name='docverificationstatus'), server_default=sa.text("'PENDING'"), nullable=False),
+    sa.Column('status', postgresql.ENUM('PENDING', 'VERIFIED', 'FLAGGED', 'FAILED', name='docverificationstatus', create_type=False), server_default=sa.text("'PENDING'"), nullable=False),
     sa.Column('result_json', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
     sa.Column('checked_at', sa.TIMESTAMP(timezone=True), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),
     sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ),

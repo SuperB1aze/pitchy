@@ -17,8 +17,13 @@ export function VirtualGrid<T>({
   const parentRef = useRef<HTMLDivElement>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [columns, setColumns] = useState(3);
+  const [scrollMargin, setScrollMargin] = useState(0);
 
   useEffect(() => {
+    // Виртуализация зависит от window и реальной геометрии DOM, поэтому
+    // первый (клиентский) рендер сознательно holds off до монтирования —
+    // без этого второй рендер здесь не обойтись.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
     const updateColumns = () => {
       const width = window.innerWidth;
@@ -26,7 +31,11 @@ export function VirtualGrid<T>({
       else if (width >= 768) setColumns(2);  // md - lg
       else setColumns(1);                   // xs - sm
     };
+    const updateScrollMargin = () => {
+      setScrollMargin(parentRef.current?.offsetTop ?? 0);
+    };
     updateColumns();
+    updateScrollMargin();
     window.addEventListener('resize', updateColumns);
     return () => window.removeEventListener('resize', updateColumns);
   }, []);
@@ -37,7 +46,7 @@ export function VirtualGrid<T>({
     count: rowCount,
     estimateSize: () => estimateSize,
     overscan: 5,
-    scrollMargin: parentRef.current?.offsetTop ?? 0,
+    scrollMargin,
   });
 
   const virtualRows = virtualizer.getVirtualItems();

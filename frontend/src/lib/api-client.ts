@@ -29,7 +29,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
 async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   const url = `${BASE_URL}${path}`;
-  
+
   const defaultOptions: RequestInit = {
     ...options,
     credentials: 'include', // Обязательно для работы с refresh_token в куках
@@ -48,6 +48,34 @@ async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T
   }
 }
 
+// Бэкенд принимает эти поля как multipart/form-data (FastAPI Form(...)),
+// а не JSON — Content-Type с boundary для FormData браузер проставляет сам.
+async function apiFormRequest<T, B extends object = object>(
+  path: string,
+  method: string,
+  body: B
+): Promise<T> {
+  const url = `${BASE_URL}${path}`;
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(body as Record<string, string | number | null | undefined>)) {
+    if (value !== null && value !== undefined) {
+      formData.append(key, String(value));
+    }
+  }
+
+  try {
+    const response = await fetch(url, {
+      method,
+      credentials: 'include',
+      body: formData,
+    });
+    return await handleResponse<T>(response);
+  } catch (error) {
+    console.error(`API Request Error [${path}]:`, error);
+    throw error;
+  }
+}
+
 export const apiClient = {
   // Auth
   login: (body: LoginRequest) => 
@@ -56,8 +84,8 @@ export const apiClient = {
   refresh: () => 
     apiRequest<TokenResponse>('/api/v1/refresh', { method: 'POST' }),
 
-  logout: () => 
-    apiRequest<any>('/api/v1/logout', { method: 'POST' }),
+  logout: () =>
+    apiRequest<{ detail: string }>('/api/v1/logout', { method: 'POST' }),
 
   getUserCredentials: () => 
     apiRequest<User>('/api/v1/user-credentials'),
@@ -69,15 +97,15 @@ export const apiClient = {
   getUserById: (userId: number) => 
     apiRequest<User>(`/api/v1/users/${userId}`),
 
-  createUser: (body: CreateUserRequest) => 
-    apiRequest<CreateUserResponse>('/api/v1/users/create_user', { method: 'POST', body: JSON.stringify(body) }),
+  createUser: (body: CreateUserRequest) =>
+    apiFormRequest<CreateUserResponse>('/api/v1/users/create_user', 'POST', body),
 
-  editUser: (userId: number, body: EditUserByAdminRequest) => 
-    apiRequest<User>(`/api/v1/users/${userId}/edit`, { method: 'POST', body: JSON.stringify(body) }),
+  editUser: (userId: number, body: EditUserByAdminRequest) =>
+    apiFormRequest<User>(`/api/v1/users/${userId}/edit`, 'PATCH', body),
 
-  editMe: (body: EditMeRequest) => 
-    apiRequest<EditMeResponse>('/api/v1/users/me/edit', { method: 'POST', body: JSON.stringify(body) }),
+  editMe: (body: EditMeRequest) =>
+    apiFormRequest<EditMeResponse>('/api/v1/users/me/edit', 'PATCH', body),
 
-  deleteUser: (userId: number) => 
-    apiRequest<string>(`/api/v1/users/${userId}`, { method: 'DELETE' }),
+  deleteUser: (userId: number) =>
+    apiRequest<string>(`/api/v1/users/${userId}/delete-account`, { method: 'DELETE' }),
 };

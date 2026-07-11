@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 
 import { Investor } from '../mock-investors';
 
-interface InvestorCardProps extends Investor {}
+type InvestorCardProps = Investor;
 
 export const InvestorCard = ({
   name,
